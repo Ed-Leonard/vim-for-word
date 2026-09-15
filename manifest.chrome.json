@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Vim for Word Online",
+  "version": "0.1.0",
+  "description": "Vim motions for Word for the web",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.officeapps.live.com/*",
+        "https://*.office.com/*",
+        "https://onedrive.live.com/*"
+      ],
+      "js": [
+        "vendor/browser-polyfill.js",
+        "src/selection-utils.js",
+        "src/mode-state.js",
+        "src/motions.js",
+        "src/editing.js",
+        "src/keymap.js",
+        "src/content-script.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": []
+}
