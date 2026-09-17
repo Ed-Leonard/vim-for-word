@@ -27,6 +27,44 @@ function getCharacterRectAtCursor() {
   return rect.width > 0 ? rect : null;
 }
 
+function getCaretRect(node, offset, biasDownstream = true) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const len = node.textContent.length;
+
+    // Downstream bias: measure the character AFTER the caret. This resolves
+    // to the line the caret is about to move into/through, not the line
+    // whatever preceded it wrapped from.
+    if (biasDownstream && offset < len) {
+      const r = document.createRange();
+      r.setStart(node, offset);
+      r.setEnd(node, offset + 1);
+      const rect = r.getClientRects()[0];
+      if (rect) return { top: rect.top, left: rect.left, bottom: rect.bottom };
+    }
+
+    // Upstream bias: measure the character BEFORE the caret.
+    if (!biasDownstream && offset > 0) {
+      const r = document.createRange();
+      r.setStart(node, offset - 1);
+      r.setEnd(node, offset);
+      const rect = r.getClientRects()[0];
+      if (rect) return { top: rect.top, left: rect.right, bottom: rect.bottom };
+    }
+  }
+
+  // Fallback: collapsed range (works fine away from wrap boundaries,
+  // and for non-text nodes / empty text nodes).
+  const range = document.createRange();
+  try {
+    range.setStart(node, offset);
+    range.setEnd(node, offset);
+  } catch {
+    return null;
+  }
+  const rects = range.getClientRects();
+  return rects[0] || range.getBoundingClientRect() || null;
+}
+
 function ensureCursorOverlay() {
   let el = document.getElementById("vim-block-cursor");
   if (!el) {
@@ -54,7 +92,8 @@ function updateCursorOverlay(mode) {
       return;
     }
 
-    const charRect = getCharacterRectAtCursor() ?? getCaretRect(); // fall back to thin rect at EOL
+    const charRect =
+      getCharacterRectAtCursor() ?? getCaretRect(document.activeElement, 0); // fall back to thin rect at EOL
 
     el.style.display = "block";
     el.style.left = `${charRect.left}px`;

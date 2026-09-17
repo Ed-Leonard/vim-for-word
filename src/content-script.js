@@ -133,7 +133,9 @@
         break;
 
       case "a":
-        moveCharacterForward();
+        moveForward("character", () => {
+          updateCursorOverlay(VimMode.getMode());
+        });
         VimMode.setMode("INSERT");
         break;
       case "u":

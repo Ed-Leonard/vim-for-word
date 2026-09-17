@@ -108,6 +108,28 @@ function findFirstContentNode(paragraphEl) {
   return nodes.length > 0 ? nodes[0] : null;
 }
 
+function landOnLastContentOfParagraph(markerNode, targetX, onSettled) {
+  const paragraphs = getAllParagraphs();
+  const pIndex = findParagraphForNode(markerNode, paragraphs);
+  if (pIndex === -1) {
+    onSettled?.();
+    return true;
+  }
+
+  const lastNode = findLastContentNode(paragraphs[pIndex]);
+  if (lastNode) {
+    return setCursorAt(lastNode, lastNode.textContent.length, () => {
+      walkToX("backward", targetX, onSettled);
+    });
+  }
+
+  // No real content — this is a genuinely empty paragraph/line, and resting
+  // on the marker IS the correct behavior (an empty line is a valid stop).
+  // Do NOT jump forward here, or blank lines become unreachable.
+  onSettled?.();
+  return true;
+}
+
 function jumpToPrevParagraphEndByIndex(pIndex, paragraphs, onSettled) {
   for (let i = pIndex - 1; i >= 0; i--) {
     const lastNode = findLastContentNode(paragraphs[i]);
@@ -119,11 +141,16 @@ function jumpToPrevParagraphEndByIndex(pIndex, paragraphs, onSettled) {
   return triggerRenderUpward();
 }
 
-function jumpToNextParagraphStartByIndex(pIndex, paragraphs, onSettled) {
+function jumpToNextParagraphStartByIndex(
+  pIndex,
+  paragraphs,
+  onSettled,
+  offset = 0,
+) {
   for (let i = pIndex + 1; i < paragraphs.length; i++) {
     const firstNode = findFirstContentNode(paragraphs[i]);
     if (firstNode) {
-      const result = setCursorAt(firstNode, 0, onSettled);
+      const result = setCursorAt(firstNode, offset, onSettled);
       return result;
     }
   }

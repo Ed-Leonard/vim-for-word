@@ -1,8 +1,8 @@
-function jumpForwardPastBoundary(fromNode, onSettled) {
+function jumpForwardPastBoundary(fromNode, onSettled, offset = 0) {
   const paragraphs = getAllParagraphs();
   const pIndex = findParagraphForNode(fromNode, paragraphs);
   if (pIndex === -1) return false;
-  return jumpToNextParagraphStartByIndex(pIndex, paragraphs, onSettled);
+  return jumpToNextParagraphStartByIndex(pIndex, paragraphs, onSettled, offset);
 }
 
 function jumpBackwardPastBoundary(fromNode, onSettled) {
@@ -11,17 +11,79 @@ function jumpBackwardPastBoundary(fromNode, onSettled) {
   return triggerRenderUpward(fromNode);
 }
 
+function walkToX(direction, targetX, onSettled, maxSteps = 1000) {
+  const sel = window.getSelection();
+  if (targetX == null) {
+    onSettled?.();
+    return true;
+  }
+
+  let rect = getCaretRect(sel.focusNode, sel.focusOffset);
+  if (!rect) {
+    onSettled?.();
+    return true;
+  }
+
+  const lineY = rect.top;
+  let bestDelta = Math.abs(rect.left - targetX);
+  let bestNode = sel.focusNode,
+    bestOffset = sel.focusOffset;
+
+  for (let i = 0; i < maxSteps; i++) {
+    const beforeNode = sel.focusNode,
+      beforeOffset = sel.focusOffset;
+    console.log(beforeNode);
+    sel.modify("move", direction, "character");
+
+    const moved =
+      sel.focusNode !== beforeNode || sel.focusOffset !== beforeOffset;
+    if (!moved) break; // hit end of paragraph/document — stop, keep best so far
+
+    const next = getCaretRect(sel.focusNode, sel.focusOffset);
+    if (!next) break;
+
+    // Wrapped onto a different visual line before reaching targetX —
+    // that means this paragraph's first/last line is shorter than targetX.
+    // Back off to the best position found on the original line and stop.
+    if (Math.abs(next.top - lineY) > 1) {
+      setCursorAt(bestNode, bestOffset, onSettled);
+      return true;
+    }
+
+    const delta = Math.abs(next.left - targetX);
+    if (delta <= bestDelta) {
+      bestDelta = delta;
+      bestNode = sel.focusNode;
+      bestOffset = sel.focusOffset;
+    } else {
+      // We've started moving away from targetX — overshot, previous step was closest
+      break;
+    }
+  }
+
+  setCursorAt(bestNode, bestOffset, onSettled);
+  return true;
+}
+
 function moveForward(granularity, onSettled) {
   const sel = window.getSelection();
   if (!sel.focusNode) return false;
 
-  // Already sitting at a boundary marker, waiting to cross it
   if (isStuckAtEOP(sel.focusNode, sel.focusOffset)) {
-    return jumpForwardPastBoundary(sel.focusNode, onSettled);
+    const rect = getCaretRect(sel.focusNode, sel.focusOffset);
+    const targetX = rect ? rect.left : null;
+    return jumpForwardPastBoundary(
+      sel.focusNode,
+      () => {
+        walkToX("forward", targetX, onSettled);
+      },
+      sel.focusOffset,
+    );
   }
 
   const beforeNode = sel.focusNode;
   const beforeOffset = sel.focusOffset;
+  const beforeRect = getCaretRect(beforeNode, beforeOffset, true);
 
   sel.modify("move", "forward", granularity);
 
@@ -29,17 +91,36 @@ function moveForward(granularity, onSettled) {
     sel.focusNode !== beforeNode || sel.focusOffset !== beforeOffset;
 
   if (moved) {
-    // Landed exactly at a boundary after this move — cross it now rather than
-    // requiring a second identical keypress to notice we're stuck.
     if (isStuckAtEOP(sel.focusNode, sel.focusOffset)) {
-      return jumpForwardPastBoundary(sel.focusNode, onSettled);
+      const afterRect = getCaretRect(sel.focusNode, sel.focusOffset, true);
+      const sameLine =
+        beforeRect && afterRect && Math.abs(afterRect.top - beforeRect.top) < 1;
+      const targetX = beforeRect ? beforeRect.left : null;
+
+      if (sameLine) {
+        // No real line change happened — this is the original "stuck" case.
+        return jumpForwardPastBoundary(
+          sel.focusNode,
+          () => {
+            walkToX("forward", targetX, onSettled);
+          },
+          beforeOffset,
+        );
+      }
+
+      // The move DID advance a line, it just landed on the marker instead
+      // of real content. Don't skip this line — step back into it.
+      return landOnLastContentOfParagraph(sel.focusNode, targetX, onSettled);
     }
+
     onSettled?.();
     return true;
   }
 
-  // Didn't move at all — try to cross from where we started
-  return jumpForwardPastBoundary(beforeNode, onSettled);
+  const targetX = beforeRect ? beforeRect.left : null;
+  return jumpForwardPastBoundary(beforeNode, () => {
+    walkToX("forward", targetX, onSettled);
+  });
 }
 
 function moveBackward(granularity, onSettled) {
