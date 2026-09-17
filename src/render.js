@@ -1,9 +1,25 @@
 function getCharacterRectAtCursor() {
   const sel = window.getSelection();
-  if (!sel.focusNode || sel.focusNode.nodeType !== Node.TEXT_NODE) return null;
-  const node = sel.focusNode,
+  if (!sel.focusNode) return null;
+
+  let node = sel.focusNode,
     offset = sel.focusOffset;
-  if (offset >= node.textContent.length) return null; // end of text node — no next char to cover
+
+  // If we're a text node but at its end, hop to the next text node in doc order
+  if (node.nodeType === Node.TEXT_NODE && offset >= node.textContent.length) {
+    const walker = document.createTreeWalker(
+      document.body,
+      NodeFilter.SHOW_TEXT,
+    );
+    walker.currentNode = node;
+    const next = walker.nextNode();
+    if (!next || next.textContent.length === 0) return null; // true EOL/EOF
+    node = next;
+    offset = 0;
+  }
+
+  if (node.nodeType !== Node.TEXT_NODE) return null;
+
   const range = document.createRange();
   range.setStart(node, offset);
   range.setEnd(node, offset + 1);
@@ -19,7 +35,8 @@ function ensureCursorOverlay() {
     el.style.cssText = `
 	  position:fixed;
 	  pointer-events:none;
-	  background:#ffffff;
+	  background:white;
+	  opacity:1;
 	  mix-blend-mode:difference;
 	  z-index:999999;
 	  display:none;
@@ -38,15 +55,11 @@ function updateCursorOverlay(mode) {
     }
 
     const charRect = getCharacterRectAtCursor() ?? getCaretRect(); // fall back to thin rect at EOL
-    if (!charRect) {
-      el.style.display = "none";
-      return;
-    }
 
     el.style.display = "block";
     el.style.left = `${charRect.left}px`;
     el.style.top = `${charRect.top}px`;
-    el.style.width = `${charRect.width || 8}px`; // fallback width at EOL where there's no next char
+    el.style.width = `${charRect.width || 12}px`; // fallback width at EOL where there's no next char
     el.style.height = `${charRect.height}px`;
   });
 }

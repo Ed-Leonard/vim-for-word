@@ -12,7 +12,6 @@
     if (editingSurface) {
       console.log("[vim-for-word] found editing surface", editingSurface);
       attachListeners();
-      addStyles();
     } else {
       setTimeout(waitForEditingSurface, 500);
     }
@@ -27,6 +26,7 @@
     () => updateCursorOverlay(VimMode.getMode()),
     true,
   );
+  addStyles();
 
   function attachListeners() {
     // Capture phase so we intercept before Word's own handlers
@@ -79,54 +79,78 @@
   }
 
   function handleNormalModeKey(event) {
+    let handled = true;
+
     switch (event.key) {
-      case "h":
-        moveCharacterBackward();
-        return true;
-      case "l":
-        moveCharacterForward();
-        return true;
-      case "j":
-        let forwardResult = moveLineForward();
-        if (!forwardResult) {
-          // Give Word a moment to render newly-scrolled-in content, then retry once.
+      case "h": {
+        const settle = () => updateCursorOverlay(VimMode.getMode());
+        if (!moveBackward("character", settle)) {
           setTimeout(() => {
-            console.log("retrying moveLineForward");
-            moveLineForward();
+            moveBackward("character", settle);
           }, 500);
         }
-        return true;
-      case "k":
-        let result = moveLineBackward();
-        if (!result) {
-          // Give Word a moment to render newly-scrolled-in content, then retry once.
+        break;
+      }
+      case "l": {
+        const settle = () => updateCursorOverlay(VimMode.getMode());
+        if (!moveForward("character", settle)) {
           setTimeout(() => {
-            console.log("retrying moveLineBackward");
-            moveLineBackward();
+            moveForward("character", settle);
           }, 500);
         }
-        return true;
+        break;
+      }
+      case "j": {
+        const settle = () => updateCursorOverlay(VimMode.getMode());
+        if (!moveForward("line", settle)) {
+          setTimeout(() => moveForward("line", settle), 500);
+        }
+        break;
+      }
+      case "k": {
+        const settle = () => updateCursorOverlay(VimMode.getMode());
+        if (!moveBackward("line", settle)) {
+          setTimeout(() => moveBackward("line", settle), 500);
+        }
+        break;
+      }
+      case "w": {
+        const settle = () => updateCursorOverlay(VimMode.getMode());
+        if (!moveForward("word", settle)) {
+          setTimeout(() => moveForward("word", settle), 500);
+        }
+        break;
+      }
+      case "b": {
+        const settle = () => updateCursorOverlay(VimMode.getMode());
+        if (!moveBackward("word", settle)) {
+          setTimeout(() => moveBackward("word", settle), 500);
+        }
+        break;
+      }
       case "x":
         deleteCharacter();
-        return true;
+        break;
+
       case "a":
         moveCharacterForward();
         VimMode.setMode("INSERT");
-        return true;
+        break;
       case "u":
         document.execCommand("undo");
-        return true;
+        break;
       case "r":
-        if (event.ctrlKey) {
-          document.execCommand("redo");
-          return true;
-        }
+        if (event.ctrlKey) document.execCommand("redo");
+        break;
       case "i":
         VimMode.setMode("INSERT");
-        return true; // swallow the 'i' itself so it's not typed
+        break;
       default:
-        return true; // not handled, don't preventDefault
+        handled = true;
     }
+
+    if (handled) updateCursorOverlay(VimMode.getMode());
+    return handled;
   }
 
   waitForEditingSurface();
