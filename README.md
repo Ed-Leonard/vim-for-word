@@ -15,3 +15,11 @@
 - Doesn't interact well with manual scrolling and mouse movement
 
 This is hell
+
+### Firefox Instructions
+
+1. clone repository
+2. open firefox
+3. go to about:debugging#/runtime/this-firefox
+4. Load temporary add on and choose the manifest.json file
+5. Click reload to update when changes are made
