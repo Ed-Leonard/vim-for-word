@@ -2,16 +2,16 @@
 
 ### Implemented
 
-- Super basic movement with h,j,k,l
-- Deleting with x
+- Super basic movement with h,j,k,l,w,b
+- Deleting with x (not working)
 - Toggle insert and normal mode with i,a,esc
-- replace caret in normal mode?
+- replace caret in normal mode (kinda)
 
 ### Issues
 
 - Moving between paragraphs is dodgy
-- Caret looks stupid and doesn't update immediately
 - Can't maintain line offset when navigating between paragraphs
 - Doesn't work for complicated segments, bullet points, tables etc.
+- Doesn't interact well with manual scrolling and mouse movement
 
 This is hell
