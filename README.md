@@ -1,20 +1,11 @@
 ## vimmotions for word in the browser
 
+This uses the package ydotool and a local python script to synthesize keypresses at the OS level which the browser does not flag as untrusted. This is required to avoid the hell of manipulating the browser word DOM.
+
 ### Implemented
 
-- Super basic movement with h,j,k,l,w,b
-- Deleting with x (not working)
-- Toggle insert and normal mode with i,a,esc
-- replace caret in normal mode (kinda)
-
-### Issues
-
-- Moving between paragraphs is dodgy
-- Can't maintain line offset when navigating between paragraphs
-- Doesn't work for complicated segments, bullet points, tables etc.
-- Doesn't interact well with manual scrolling and mouse movement
-
-This is hell
+- Movement with h,j,k,l,w,b
+- Switch modes with i,a,ESC
 
 ### Firefox Instructions
 
@@ -22,4 +13,5 @@ This is hell
 2. open firefox
 3. go to about:debugging#/runtime/this-firefox
 4. Load temporary add on and choose the manifest.json file
-5. Click reload to update when changes are made
+
+create python file to communicate with package that can synthesize key events, depending on OS

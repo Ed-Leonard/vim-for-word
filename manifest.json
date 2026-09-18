@@ -3,6 +3,11 @@
   "name": "Vim for Word Online",
   "version": "0.1.0",
   "description": "Vim motions for Word for the web",
+  "permissions": ["nativeMessaging"],
+  "browser_specific_settings": {
+    "gecko": { "id": "vim-for-word@typo" }
+  },
+  "background": { "scripts": ["src/background.js"] },
   "content_scripts": [
     {
       "matches": [
@@ -12,22 +17,13 @@
         "https://*.sharepoint.com/*"
       ],
       "js": [
-        "src/mode-state.js",
-        "src/selection-utils.js",
-        "src/motions.js",
-        "src/styles.js",
+        "src/vimmode.js",
         "src/render.js",
-        "src/content-script.js"
+        "src/keys.js",
+        "src/content.js"
       ],
       "all_frames": true,
       "run_at": "document_idle"
     }
-  ],
-  "permissions": [],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "vim-for-word@edleonard.dev",
-      "strict_min_version": "109.0"
-    }
-  }
+  ]
 }

@@ -1,4 +1,4 @@
-// Simple mode state machine: NORMAL, INSERT, VISUAL
+// Simple mode state machine: NORMAL, INSERT
 const VimMode = (() => {
   let currentMode = "NORMAL";
   const listeners = [];
