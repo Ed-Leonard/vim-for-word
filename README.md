@@ -47,3 +47,11 @@ Uninstall: `./uninstall.sh` (add `--purge-udev` to remove the udev rule too).
   Chrome equivalent) pointing at the manifest JSON, with `path` set to a `.bat`/`.exe`; add an
   `install.ps1`.
 - **macOS**: a `CGEvent` backend; `keymap.json` already has a `darwin` section (Alt/Meta shortcuts).
+
+## TODO
+
+- Yanking sometimes doesn't close the selection leaving the text highlighted, possible race condition or smth on the key events
+- Status line is very simple and boring
+- numbered motions are limited to 100 to prevent blowing up word
+- cursor is a little laggy and sometimes inaccurate for bullet point lists in visual mode for whatever reason
+- Lots of missing bindings still to implement
