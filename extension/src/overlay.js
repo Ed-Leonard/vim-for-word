@@ -2,11 +2,33 @@
 function addStyles() {
   const modeStyle = document.createElement("style");
   modeStyle.textContent = `
-  html.vim-normal-mode #PagesContainer,
-  html.vim-normal-mode body {
-    caret-color: transparent !important;
-  }
-`;
+    html.vim-normal-mode #PagesContainer,
+    html.vim-normal-mode body {
+      caret-color: transparent !important;
+    }
+
+    #vim-block-cursor {
+      position: fixed;
+      display: none;
+      pointer-events: none;
+      background: white;
+      mix-blend-mode: difference;
+      z-index: 999999;
+      animation: vim-blink 1.5s steps(1) infinite;
+    }
+
+    @keyframes vim-blink {
+      0%, 55% { opacity: 1; }
+      56%, 100% { opacity: 0; }
+    }
+
+    /* Solid while selecting, like Vim */
+    #vim-block-cursor.visual { animation: none; opacity: 1; }
+
+    @media (prefers-reduced-motion: reduce) {
+      #vim-block-cursor { animation: none; }
+    }
+  `;
   document.documentElement.appendChild(modeStyle);
 }
 
@@ -15,15 +37,6 @@ function ensureCursorOverlay() {
   if (!el) {
     el = document.createElement("div");
     el.id = "vim-block-cursor";
-    el.style.cssText = `
-	  position:fixed;
-	  pointer-events:none;
-	  background:white;
-	  opacity:1;
-	  mix-blend-mode:difference;
-	  z-index:999999;
-	  display:none;
-	`;
     document.documentElement.appendChild(el);
   }
   return el;
@@ -112,6 +125,12 @@ function updateCursorOverlay(mode) {
     el.style.top = `${charRect.top}px`;
     el.style.width = `${charRect.width || 12}px`; // fallback width at EOL where there's no next char
     el.style.height = `${charRect.height}px`;
+
+    el.classList.toggle("visual", mode === "VISUAL");
+
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.style.animation = "";
   });
 }
 
@@ -146,7 +165,7 @@ function updateStatusLine(mode = VimMode.getMode()) {
   modeEl.textContent = `-- ${mode} --`;
   countEl.textContent = wordCount ? `${wordCount} words` : "";
   statusEl.style.background =
-    mode === "INSERT" ? "#1b6e3c" : mode === "VISUAL" ? "#9a5b13" : "#1f3b63";
+    mode === "INSERT" ? "#3CB26B" : mode === "VISUAL" ? "#BE8543" : "#537DB7";
 }
 
 function readWordCount() {

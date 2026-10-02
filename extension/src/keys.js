@@ -9,9 +9,11 @@ const NORMAL_KEYS = {
   l: { keys: ["Right"], counted: true },
   w: { keys: ["WordRight"], counted: true },
   b: { keys: ["WordLeft"], counted: true },
+  0: { keys: ["Home"], counted: true },
+  "Shift+$": { keys: ["End"], counted: true },
   x: { keys: ["Delete"], counted: true },
   u: { keys: ["Undo"], counted: true },
-  "Ctrl+r": { keys: ["Redo"], counted: true },
+  "Ctrl+r": { keys: ["Redo"], counted: true, tolerates: ["Ctrl"] },
   p: { keys: ["Paste"], counted: true },
 
   a: { keys: ["Right"], mode: "INSERT" },
@@ -21,7 +23,7 @@ const NORMAL_KEYS = {
   "Shift+I": { keys: ["Home"], mode: "INSERT" },
   o: { keys: ["End", "Enter"], mode: "INSERT" },
   "Shift+O": { keys: ["Home", "Enter", "Up"], mode: "INSERT" },
-  v: { keys: [], shift: true, mode: "VISUAL" },
+  v: { keys: ["Right"], shift: true, mode: "VISUAL" },
   "Shift+G": { keys: ["EndOfPage"] },
 };
 
@@ -111,13 +113,14 @@ async function runOperator(op, motion, n) {
   updateCursorOverlay(VimMode.getMode());
 }
 
-function modsDown(event) {
+function modsDown(event, tolerated = []) {
+  const ok = (m) => tolerated.includes(m);
   const shiftMatters = VimMode.getMode() !== "VISUAL"; // visual motions add Shift anyway
   return (
-    event.ctrlKey ||
-    event.altKey ||
-    event.metaKey ||
-    (shiftMatters && event.shiftKey)
+    (event.ctrlKey && !ok("Ctrl")) ||
+    (event.altKey && !ok("Alt")) ||
+    (event.metaKey && !ok("Meta")) ||
+    (shiftMatters && event.shiftKey && !ok("Shift"))
   );
 }
 
@@ -195,7 +198,7 @@ function handleKeydown(event) {
     swallow(event);
     swallowed.add(event.code);
     const n = count || 1;
-    if (modsDown(event)) {
+    if (modsDown(event, cmd.tolerates)) {
       pending = { run: () => runCommand(cmd, n) };
     } else {
       runCommand(cmd, n);

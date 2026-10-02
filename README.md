@@ -62,4 +62,5 @@ Uninstall: `./uninstall.sh` (add `--purge-udev` to remove the udev rule too).
 - Word has lots of quirks. E.g. o maps to 'end' + 'enter' but in the middle of a paragraph word treats 'enter' as split paragraph rather than new line
 - Lots of command and motions are slightly different to vim behavior because of these quirks
 - Not tested on light mode, or chromium browsers, and no windows or mac support yet.
-- Only works in browser due to it being an extension 
+- Only works in browser due to it being an extension
+- Some commands that involve shift or ctrl modifiers etc. only trigger once the modifier is lifted, since the modifier would be injected into the synthetic event otherwise. E.g. "shift+G" triggers "Ctrl+End" but would actually trigger "Ctrl+Shift+G+End" which would highlight the whole document.
