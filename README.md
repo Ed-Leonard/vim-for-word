@@ -38,7 +38,6 @@ Uninstall: `./uninstall.sh` (add `--purge-udev` to remove the udev rule too).
 | `v` | VISUAL (motions extend the selection; `y d x c s`; `Esc`/`v` leaves) |
 | `y d c` + motion, or doubled | `yw`, `d3w`, `yy`, `dd`, `cc`, `dG` |
 
-```
 
 ## Porting
 
