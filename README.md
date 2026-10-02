@@ -55,3 +55,11 @@ Uninstall: `./uninstall.sh` (add `--purge-udev` to remove the udev rule too).
 - numbered motions are limited to 100 to prevent blowing up word
 - cursor is a little laggy and sometimes inaccurate for bullet point lists in visual mode for whatever reason
 - Lots of missing bindings still to implement
+
+## Limitations
+
+- All keys map to a word shortcut since creating exact motions via selection modification is impossible for word due to JS state bs
+- Word has lots of quirks. E.g. o maps to 'end' + 'enter' but in the middle of a paragraph word treats 'enter' as split paragraph rather than new line
+- Lots of command and motions are slightly different to vim behavior because of these quirks
+- Not tested on light mode, or chromium browsers, and no windows or mac support yet.
+- Only works in browser due to it being an extension 
