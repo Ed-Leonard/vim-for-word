@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "vim-for-word",
+  "version": "0.1.0",
+  "description": "Vim-style normal/visual mode for text fields, via a native key injector.",
+  "permissions": ["nativeMessaging"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["keys.js", "vimmode.js", "overlay.js", "content.js"],
+      "all_frames": true,
+      "run_at": "document_start"
+    }
+  ]
+}

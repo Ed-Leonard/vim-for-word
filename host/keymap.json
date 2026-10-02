@@ -1,0 +1,24 @@
+{
+  "default": {
+    "WordRight": ["Ctrl", "Right"],
+    "WordLeft": ["Ctrl", "Left"],
+    "DeleteWord": ["Ctrl", "Delete"],
+    "EndOfPage": ["Ctrl", "End"],
+    "Undo": ["Ctrl", "z"],
+    "Redo": ["Ctrl", "y"],
+    "Copy": ["Ctrl", "c"],
+    "Cut": ["Ctrl", "x"],
+    "Paste": ["Ctrl", "v"]
+  },
+  "darwin": {
+    "WordRight": ["Alt", "Right"],
+    "WordLeft": ["Alt", "Left"],
+    "DeleteWord": ["Alt", "Delete"],
+    "EndOfPage": ["Meta", "Down"],
+    "Undo": ["Meta", "z"],
+    "Redo": ["Meta", "Shift", "z"],
+    "Copy": ["Meta", "c"],
+    "Cut": ["Meta", "x"],
+    "Paste": ["Meta", "v"]
+  }
+}

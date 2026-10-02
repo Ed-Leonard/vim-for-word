@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "vim-for-word",
+  "version": "0.1.0",
+  "description": "Vim-style normal/visual mode for text fields, via a native key injector.",
+  "browser_specific_settings": { "gecko": { "id": "vimword@typo" } },
+  "permissions": ["nativeMessaging"],
+  "background": { "scripts": ["background.js"], "persistent": true },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.officeapps.live.com/*",
+        "https://*.office.com/*",
+        "https://onedrive.live.com/*",
+        "https://*.sharepoint.com/*"
+      ],
+      "js": ["keys.js", "vimmode.js", "overlay.js", "content.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ]
+}
