@@ -1,4 +1,4 @@
-# vimword
+# vim for word
 
 Swallows keyboard inputs and converts them to word shortcuts in NORMAL or VISUAL mode via creating syntethic key events at the OS level. Word will ignore browser synthed keys.
 
