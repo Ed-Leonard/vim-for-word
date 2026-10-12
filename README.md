@@ -32,36 +32,19 @@ After updating, run `./install.sh --no-udev` to refresh the installed native hos
 and extension build, then reload the extension and the Word tab. The host runs
 from the installed copy, not directly from this repository.
 
-## Performance
-
-Counted motions are injected without artificial sleeps (previously `100j` added
-720 ms of pacing). Linux shortcuts use one input frame for presses and one for
-releases. Cursor redraws are coalesced per animation frame without forcing a
-synchronous layout to restart blinking. Held-key repeats start at 400 ms and
-skip ticks while the previous command is still in flight, avoiding a repeat backlog.
-
-Word and the compositor still determine when injected events take effect.
-Modifier-dependent commands still wait for physical modifiers to be released
-to avoid changing the intended shortcut.
-
-Dependency-free regression tests (no virtual keyboard or Word session needed):
-
-```bash
-python3 -m unittest discover -s tests
-node --test tests/latency.test.js
-```
-
 ## Usage
 
+| Keys                         | Action                                                               |
+| ---------------------------- | -------------------------------------------------------------------- |
+| `h j k l`, `w b`, `G`        | move (counts like `5j`)                                              |
+| `x u Ctrl+r`                 | delete char, undo, redo                                              |
+| `i a A I o O s`              | enter INSERT                                                         |
+| `v`                          | VISUAL (motions extend the selection; `y d x c s`; `Esc`/`v` leaves) |
+| `y d c` + motion, or doubled | `yw`, `d3w`, `yy`, `dd`, `cc`, `dG`                                  |
 
-| Keys | Action |
-|---|---|
-| `h j k l`, `w b`, `G` | move (counts like `5j`) |
-| `x u Ctrl+r` | delete char, undo, redo |
-| `i a A I o O s` | enter INSERT |
-| `v` | VISUAL (motions extend the selection; `y d x c s`; `Esc`/`v` leaves) |
-| `y d c` + motion, or doubled | `yw`, `d3w`, `yy`, `dd`, `cc`, `dG` |
-
+Long commands are injected in batches of four shortcuts with a 30 ms pause
+between batches so Word can catch up rendering. Single-key commands have no
+added delay.
 
 ## Porting
 
