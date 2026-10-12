@@ -2,6 +2,7 @@
 const VimMode = (() => {
   let currentMode = "NORMAL";
   const listeners = [];
+  document.documentElement.classList.add("vim-normal-mode");
 
   function setMode(mode) {
     if (mode === currentMode) return;

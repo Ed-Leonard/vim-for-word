@@ -3,6 +3,7 @@ function addStyles() {
   const modeStyle = document.createElement("style");
   modeStyle.textContent = `
     html.vim-normal-mode #PagesContainer,
+    html.vim-normal-mode #PagesContainer *,
     html.vim-normal-mode body {
       caret-color: transparent !important;
     }
@@ -321,8 +322,9 @@ function updateCursorOverlay(mode) {
       if (lineNumberEl) lineNumberEl.style.display = "none";
       return;
     }
+    const characterRect = getCharacterRectAtCursor();
     const charRect =
-      getCharacterRectAtCursor() ??
+      characterRect ??
       (selection?.focusNode
         ? getCaretRect(selection.focusNode, selection.focusOffset)
         : null);
@@ -333,7 +335,7 @@ function updateCursorOverlay(mode) {
       return;
     }
 
-    const width = charRect.width || 12;
+    const width = characterRect ? characterRect.width : 12;
     const right = charRect.left + width;
     const bottom = charRect.top + charRect.height;
     // Fixed overlays do not inherit the editor's scrolling or menu clipping.
