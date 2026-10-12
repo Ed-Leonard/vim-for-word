@@ -17,6 +17,8 @@ const MOTIONS = {
   0: { keys: ["Home"] },
   "Shift+G": { keys: ["EndOfPage"] },
   "g g": { keys: ["StartOfPage"] },
+  "Ctrl+]": { keys: ["DownParagraph"], counted: true, tolerates: ["Ctrl"] },
+  "Ctrl+[": { keys: ["UpParagraph"], counted: true, tolerates: ["Ctrl"] },
 };
 
 // Things that select a region around the cursor. Valid only after an operator or in VISUAL.
@@ -154,17 +156,6 @@ function modsDown(event, tolerated = []) {
   );
 }
 
-// Injected modifiers would merge with physical ones, so wait until they are released.
-// Returns true if `run` executed immediately, false if it was deferred.
-function schedule(run, event) {
-  if (modsDown(event)) {
-    pending = { run };
-    return false;
-  }
-  run();
-  return true;
-}
-
 async function runCommand(cmd, n = 1) {
   if (cmd.keys.length) await send(cmd.keys, cmd.counted ? n : 1, !!cmd.shift);
   if (cmd.mode) VimMode.setMode(cmd.mode);
@@ -203,6 +194,15 @@ async function runOperator(opKey, target, n) {
   updateCursorOverlay(VimMode.getMode());
 }
 
+function schedule(run, event, tolerated) {
+  if (modsDown(event, tolerated)) {
+    pending = { run, tolerates: tolerated };
+    return false;
+  }
+  run();
+  return true;
+}
+
 function feed(event, mode) {
   const combo = getKeyCombo(event);
   const inSeq = buf.seq.length > 0;
@@ -238,7 +238,11 @@ function feed(event, mode) {
 
   if (op && !inSeq && combo === op) {
     buf = fresh();
-    const ran = schedule(() => runOperator(op, { linewise: true }, n), event);
+    const ran = schedule(
+      () => runOperator(op, { linewise: true }, n),
+      event,
+      target.tolerates,
+    );
     return { status: "done", ran };
   }
 
@@ -249,6 +253,7 @@ function feed(event, mode) {
     const ran = schedule(
       () => (op ? runOperator(op, target, n) : runMotion(target, n)),
       event,
+      target.tolerates,
     );
     const motion = !op && target.counted ? target : null;
     return { status: "done", ran, motion };
