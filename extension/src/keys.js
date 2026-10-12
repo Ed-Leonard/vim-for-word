@@ -15,6 +15,8 @@ const NORMAL_KEYS = {
   u: { keys: ["Undo"], counted: true },
   "Ctrl+r": { keys: ["Redo"], counted: true, tolerates: ["Ctrl"] },
   p: { keys: ["Paste"], counted: true },
+  "Ctrl+]": { keys: ["DownParagraph"], counted: true },
+  "Ctrl+[": { keys: ["UpParagraph"], counted: true },
 
   a: { keys: ["Right"], mode: "INSERT" },
   "Shift+A": { keys: ["End"], mode: "INSERT" },
