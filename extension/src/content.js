@@ -35,6 +35,13 @@
     );
     document.addEventListener("keydown", handleKeydown, true);
     document.addEventListener("keyup", handleKeyup, true);
+    document.addEventListener("selectionchange", () => {
+      const sel = document.getSelection();
+      if (sel && !sel.isCollapsed && sel.toString().length > 0) {
+        VimMode.setMode("VISUAL");
+      }
+    });
+
     window.addEventListener("blur", () => {
       stopHold();
       clearPending();
