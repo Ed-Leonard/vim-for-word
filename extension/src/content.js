@@ -30,6 +30,12 @@
       updateCursorOverlay(VimMode.getMode()),
     );
     document.addEventListener("scroll", invalidateLineNumbers, true);
+    document.addEventListener("pointerdown", () =>
+      updateCursorOverlay(VimMode.getMode()),
+    );
+    document.addEventListener("focusin", () =>
+      updateCursorOverlay(VimMode.getMode()),
+    );
     document.addEventListener("keydown", handleKeydown, true);
     document.addEventListener("keyup", handleKeyup, true);
     document.addEventListener("selectionchange", () => {
@@ -48,7 +54,11 @@
       stopHold();
       clearPending();
       swallowed.clear();
+      updateCursorOverlay(VimMode.getMode());
     });
+    window.addEventListener("focus", () =>
+      updateCursorOverlay(VimMode.getMode()),
+    );
     updateStatusLine();
     watchWordCount();
   }

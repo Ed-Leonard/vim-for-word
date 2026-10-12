@@ -84,7 +84,42 @@ function watchLineNumbers(surface) {
   window.addEventListener("resize", invalidateLineNumbers);
 }
 
-function updateLineNumbers(caretRect) {
+function getEditorClipRect() {
+  const surfaceRect = lineNumberSurface.getBoundingClientRect();
+  const clip = {
+    top: Math.max(0, surfaceRect.top),
+    bottom: Math.min(window.innerHeight, surfaceRect.bottom),
+    left: Math.max(0, surfaceRect.left),
+    right: Math.min(window.innerWidth, surfaceRect.right),
+  };
+  for (
+    let parent = lineNumberSurface.parentElement;
+    parent;
+    parent = parent.parentElement
+  ) {
+    const style = getComputedStyle(parent);
+    if (style.overflowX === "visible" && style.overflowY === "visible")
+      continue;
+    const rect = parent.getBoundingClientRect();
+    if (style.overflowY !== "visible") {
+      clip.top = Math.max(clip.top, rect.top + parent.clientTop);
+      clip.bottom = Math.min(
+        clip.bottom,
+        rect.top + parent.clientTop + parent.clientHeight,
+      );
+    }
+    if (style.overflowX !== "visible") {
+      clip.left = Math.max(clip.left, rect.left + parent.clientLeft);
+      clip.right = Math.min(
+        clip.right,
+        rect.left + parent.clientLeft + parent.clientWidth,
+      );
+    }
+  }
+  return clip;
+}
+
+function updateLineNumbers(caretRect, clip) {
   if (!lineNumberSurface) return;
   const selection = window.getSelection();
   if (!caretRect || !lineNumberSurface.contains(selection?.focusNode)) {
@@ -127,25 +162,12 @@ function updateLineNumbers(caretRect) {
       }
     }
 
-    let clipTop = 0;
-    let clipBottom = window.innerHeight;
-    for (
-      let parent = lineNumberSurface.parentElement;
-      parent;
-      parent = parent.parentElement
-    ) {
-      if (getComputedStyle(parent).overflowY !== "visible") {
-        const rect = parent.getBoundingClientRect();
-        clipTop = Math.max(clipTop, rect.top);
-        clipBottom = Math.min(clipBottom, rect.bottom);
-      }
-    }
     visibleLineLabels = [];
     const fragment = document.createDocumentFragment();
     const width = Math.min(48, Math.max(0, left - 8));
     if (width >= 16) {
       renderedLines.forEach((line, index) => {
-        if (line.top < clipTop || line.bottom > clipBottom) return;
+        if (line.top < clip.top || line.bottom > clip.bottom) return;
         const el = document.createElement("span");
         Object.assign(el.style, {
           left: `${left - width - 8}px`,
@@ -291,13 +313,45 @@ function updateCursorOverlay(mode) {
     }
 
     const selection = window.getSelection();
+    if (
+      !document.hasFocus() ||
+      !lineNumberSurface?.contains(selection?.focusNode)
+    ) {
+      el.style.display = "none";
+      if (lineNumberEl) lineNumberEl.style.display = "none";
+      return;
+    }
     const charRect =
       getCharacterRectAtCursor() ??
       (selection?.focusNode
         ? getCaretRect(selection.focusNode, selection.focusOffset)
         : null);
-    updateLineNumbers(charRect);
+    const clip = getEditorClipRect();
+    updateLineNumbers(charRect, clip);
     if (!charRect) {
+      el.style.display = "none";
+      return;
+    }
+
+    const width = charRect.width || 12;
+    const right = charRect.left + width;
+    const bottom = charRect.top + charRect.height;
+    // Fixed overlays do not inherit the editor's scrolling or menu clipping.
+    if (
+      charRect.height <= 0 ||
+      charRect.top < clip.top ||
+      bottom > clip.bottom ||
+      charRect.left < clip.left ||
+      right > clip.right ||
+      ![
+        [charRect.left, charRect.top],
+        [right - 0.5, charRect.top],
+        [charRect.left, bottom - 0.5],
+        [right - 0.5, bottom - 0.5],
+      ].every(([x, y]) =>
+        lineNumberSurface.contains(document.elementFromPoint(x, y)),
+      )
+    ) {
       el.style.display = "none";
       return;
     }
@@ -305,7 +359,7 @@ function updateCursorOverlay(mode) {
     el.style.display = "block";
     el.style.left = `${charRect.left}px`;
     el.style.top = `${charRect.top}px`;
-    el.style.width = `${charRect.width || 12}px`; // fallback width at EOL where there's no next char
+    el.style.width = `${width}px`; // fallback width at EOL where there's no next char
     el.style.height = `${charRect.height}px`;
 
     el.classList.toggle("visual", mode === "VISUAL");
