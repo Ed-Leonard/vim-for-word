@@ -54,6 +54,7 @@
     });
     updateStatusLine();
     watchWordCount();
+    watchLineNumbers();
   }
 
   waitForEditingSurface();
