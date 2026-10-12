@@ -110,7 +110,7 @@ function stopHold() {
   hold = null;
 }
 
-function startHold(code, cmd, firstRun) {
+function startHold(code, step, firstRun) {
   stopHold();
   const h = { code, delayTimer: null, repeatTimer: null, busy: true };
   const finished = () => {
@@ -120,7 +120,7 @@ function startHold(code, cmd, firstRun) {
   const repeat = () => {
     if (hold !== h || h.busy) return;
     h.busy = true;
-    runCommand(cmd, 1).then(finished, finished);
+    step().then(finished, finished);
   };
   h.delayTimer = setTimeout(() => {
     repeat();
@@ -214,10 +214,9 @@ async function runOperator(opKey, target, n) {
 function schedule(run, event, tolerated) {
   if (modsDown(event, tolerated)) {
     pending = { run, tolerates: tolerated };
-    return false;
+    return null;
   }
-  run();
-  return true;
+  return Promise.resolve(run());
 }
 
 function feed(event, mode) {
@@ -255,11 +254,7 @@ function feed(event, mode) {
 
   if (op && !inSeq && combo === op) {
     buf = fresh();
-    const ran = schedule(
-      () => runOperator(op, { linewise: true }, n),
-      event,
-      target.tolerates,
-    );
+    const ran = schedule(() => runOperator(op, { linewise: true }, n), event);
     return { status: "done", ran };
   }
 
@@ -314,7 +309,7 @@ function handleKeydown(event) {
   if (r.status !== "none") {
     swallowKey(event);
     if (r.status === "done" && r.ran && r.motion) {
-      startHold(event.code, () => runMotion(r.motion, 1));
+      startHold(event.code, () => runMotion(r.motion, 1), r.ran);
     }
     updateCursorOverlay(VimMode.getMode());
     return;
@@ -332,7 +327,8 @@ function handleKeydown(event) {
       pending = { run: () => runCommand(cmd, n) };
     } else {
       const firstRun = runCommand(cmd, n);
-      if (cmd.counted) startHold(event.code, cmd, firstRun);
+      if (cmd.counted)
+        startHold(event.code, () => runCommand(cmd, 1), firstRun);
     }
   }
   updateCursorOverlay(VimMode.getMode());

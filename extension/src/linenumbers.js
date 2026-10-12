@@ -34,7 +34,7 @@ const LINE_NUMBER_CSS = `
   #vim-line-numbers div {
     position: absolute;
     right: 0;
-    padding-right: 8px;
+    padding-right: 12px;
     white-space: nowrap;
     opacity: 0.6;
   }
