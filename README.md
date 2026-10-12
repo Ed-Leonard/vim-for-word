@@ -28,6 +28,29 @@ Then load the extension:
 
 Uninstall: `./uninstall.sh` (add `--purge-udev` to remove the udev rule too).
 
+After updating, run `./install.sh --no-udev` to refresh the installed native host
+and extension build, then reload the extension and the Word tab. The host runs
+from the installed copy, not directly from this repository.
+
+## Performance
+
+Counted motions are injected without artificial sleeps (previously `100j` added
+720 ms of pacing). Linux shortcuts use one input frame for presses and one for
+releases. Cursor redraws are coalesced per animation frame without forcing a
+synchronous layout to restart blinking. Held-key repeats start at 400 ms and
+skip ticks while the previous command is still in flight, avoiding a repeat backlog.
+
+Word and the compositor still determine when injected events take effect.
+Modifier-dependent commands still wait for physical modifiers to be released
+to avoid changing the intended shortcut.
+
+Dependency-free regression tests (no virtual keyboard or Word session needed):
+
+```bash
+python3 -m unittest discover -s tests
+node --test tests/latency.test.js
+```
+
 ## Usage
 
 

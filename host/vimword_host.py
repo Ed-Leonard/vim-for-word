@@ -12,7 +12,6 @@ import json
 import os
 import struct
 import sys
-import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -22,8 +21,6 @@ with open(os.path.join(HERE, "keymap.json")) as f:
 KEYMAP = {**_km["default"], **_km.get(sys.platform, {})}
 
 MAX_COUNT = 100
-BATCH_SIZE = 4
-BATCH_GAP = 0.03
 
 
 def read_message():
@@ -59,11 +56,9 @@ def handle(inj, msg):
     shift = bool(msg.get("shift"))
     # Resolve everything first so a bad key name never leaves a half-executed sequence.
     steps = [inj.resolve(key_names(k, shift)) for k in keys]
-    for i in range(count):
+    for _ in range(count):
         for codes in steps:
             inj.tap(codes)
-        if (i + 1) % BATCH_SIZE == 0 and i + 1 < count:
-            time.sleep(BATCH_GAP)
 
 
 def main():
