@@ -32,9 +32,10 @@ const OPERATORS = {
   y: { keys: ["Copy"], collapse: "start" },
   d: { keys: ["Cut"] },
   c: { keys: ["Cut"], mode: "INSERT" },
+  g: { keys: ["StartOfPage"] },
 };
 
-const MOTIONS = ["h", "j", "k", "l", "w", "b", "Shift+G"];
+const MOTIONS = ["h", "j", "k", "l", "w", "b", "Shift+G", "g"];
 
 const VISUAL_KEYS = {
   ...Object.fromEntries(

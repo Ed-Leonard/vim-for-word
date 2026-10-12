@@ -4,6 +4,7 @@
     "WordLeft": ["Ctrl", "Left"],
     "DeleteWord": ["Ctrl", "Delete"],
     "EndOfPage": ["Ctrl", "End"],
+    "StartOfPage": ["Ctrl", "Home"],
     "Undo": ["Ctrl", "z"],
     "Redo": ["Ctrl", "y"],
     "Copy": ["Ctrl", "c"],
