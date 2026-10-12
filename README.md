@@ -44,13 +44,6 @@ Word and the compositor still determine when injected events take effect.
 Modifier-dependent commands still wait for physical modifiers to be released
 to avoid changing the intended shortcut.
 
-Dependency-free regression tests (no virtual keyboard or Word session needed):
-
-```bash
-python3 -m unittest discover -s tests
-node --test tests/latency.test.js
-```
-
 ## Usage
 
 
@@ -61,6 +54,14 @@ node --test tests/latency.test.js
 | `i a A I o O s` | enter INSERT |
 | `v` | VISUAL (motions extend the selection; `y d x c s`; `Esc`/`v` leaves) |
 | `y d c` + motion, or doubled | `yw`, `d3w`, `yy`, `dd`, `cc`, `dG` |
+
+NORMAL and VISUAL modes show a relative line-number gutter. The cursor's row
+shows its absolute number; other rows show how many `j`/`k` steps away they are.
+Numbers follow rendered rows, including wrapped text, rather than paragraphs.
+Geometry is cached between cursor movements and refreshed on edits, scrolling,
+and resizing. Numbers refer to the text rows currently rendered in Word's DOM;
+virtualized/off-DOM pages cannot be counted. The gutter hides in INSERT mode
+and when there is not enough room beside the text.
 
 
 ## Porting

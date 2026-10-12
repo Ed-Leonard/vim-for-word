@@ -25,14 +25,11 @@
   addStyles();
 
   function attachListeners() {
+    watchLineNumbers(editingSurface);
     document.addEventListener("selectionchange", () =>
       updateCursorOverlay(VimMode.getMode()),
     );
-    document.addEventListener(
-      "scroll",
-      () => updateCursorOverlay(VimMode.getMode()),
-      true,
-    );
+    document.addEventListener("scroll", invalidateLineNumbers, true);
     document.addEventListener("keydown", handleKeydown, true);
     document.addEventListener("keyup", handleKeyup, true);
     document.addEventListener("selectionchange", () => {
