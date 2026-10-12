@@ -37,7 +37,12 @@
     document.addEventListener("keyup", handleKeyup, true);
     document.addEventListener("selectionchange", () => {
       const sel = document.getSelection();
-      if (sel && !sel.isCollapsed && sel.toString().length > 0) {
+      if (
+        VimMode.getMode() !== "VISUAL" &&
+        sel &&
+        !sel.isCollapsed &&
+        sel.toString().length > 0
+      ) {
         VimMode.setMode("VISUAL");
       }
     });

@@ -9,7 +9,9 @@
     "Redo": ["Ctrl", "y"],
     "Copy": ["Ctrl", "c"],
     "Cut": ["Ctrl", "x"],
-    "Paste": ["Ctrl", "v"]
+    "Paste": ["Ctrl", "v"],
+    "DownParagraph": ["Ctrl", "Down"],
+    "UpParagraph": ["Ctrl", "Up"]
   },
   "darwin": {
     "WordRight": ["Alt", "Right"],
@@ -20,6 +22,8 @@
     "Redo": ["Meta", "Shift", "z"],
     "Copy": ["Meta", "c"],
     "Cut": ["Meta", "x"],
-    "Paste": ["Meta", "v"]
+    "Paste": ["Meta", "v"],
+    "DownParagraph": ["Alt", "Down"],
+    "UpParagraph": ["Alt", "Up"]
   }
 }

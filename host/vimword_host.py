@@ -59,11 +59,15 @@ def handle(inj, msg):
     shift = bool(msg.get("shift"))
     # Resolve everything first so a bad key name never leaves a half-executed sequence.
     steps = [inj.resolve(key_names(k, shift)) for k in keys]
-    for i in range(count):
+    total = count * len(steps)
+    completed = 0
+    for _ in range(count):
         for codes in steps:
             inj.tap(codes)
-        if (i + 1) % BATCH_SIZE == 0 and i + 1 < count:
-            time.sleep(BATCH_GAP)
+            completed += 1
+            # Let Word render between batches, including expanded operator motions.
+            if completed % BATCH_SIZE == 0 and completed < total:
+                time.sleep(BATCH_GAP)
 
 
 def main():
