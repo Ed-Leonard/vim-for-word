@@ -85,7 +85,7 @@ echo "==> Registering native messaging host"
 manifest "$HOME/.mozilla/native-messaging-hosts" allowed_extensions "$FF_ID"
 [ -d "$HOME/.librewolf" ] && manifest "$HOME/.librewolf/native-messaging-hosts" allowed_extensions "$FF_ID"
 if [ -n "$CHROME_ID" ]; then
-  for d in google-chrome chromium BraveSoftware/Brave-Browser microsoft-edge; do
+  for d in google-chrome chromium BraveSoftware/Brave-Browser microsoft-edge vivaldi; do
     [ -d "$HOME/.config/$d" ] && \
       manifest "$HOME/.config/$d/NativeMessagingHosts" allowed_origins "chrome-extension://$CHROME_ID/"
   done
