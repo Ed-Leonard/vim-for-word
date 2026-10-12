@@ -28,6 +28,8 @@ function addStyles() {
     @media (prefers-reduced-motion: reduce) {
       #vim-block-cursor { animation: none; }
     }
+
+	${LINE_NUMBER_CSS}
   `;
   document.documentElement.appendChild(modeStyle);
 }

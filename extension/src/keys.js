@@ -43,6 +43,7 @@ const COMMANDS = {
   o: { keys: ["End", "Enter"], mode: "INSERT" },
   "Shift+O": { keys: ["Home", "Enter", "Up"], mode: "INSERT" },
   v: { keys: ["Right"], shift: true, mode: "VISUAL" },
+  "Shift+N": { action: () => toggleLineNumbers(), tolerates: ["Shift"] },
 };
 
 // Standalone VISUAL-mode commands (they act on the current selection).
@@ -157,6 +158,11 @@ function modsDown(event, tolerated = []) {
 }
 
 async function runCommand(cmd, n = 1) {
+  if (cmd.action) {
+    cmd.action();
+    return;
+  }
+
   if (cmd.keys.length) await send(cmd.keys, cmd.counted ? n : 1, !!cmd.shift);
   if (cmd.mode) VimMode.setMode(cmd.mode);
   if (cmd.collapse)
