@@ -35,6 +35,8 @@ const COMMANDS = {
   u: { keys: ["Undo"], counted: true },
   "Ctrl+r": { keys: ["Redo"], counted: true, tolerates: ["Ctrl"] },
   p: { keys: ["Paste"], counted: true },
+  "Ctrl+]": { keys: ["DownParagraph"], counted: true, tolerates: ["Ctrl"] },
+  "Ctrl+[": { keys: ["UpParagraph"], counted: true, tolerates: ["Ctrl"] },
   a: { keys: ["Right"], mode: "INSERT" },
   "Shift+A": { keys: ["End"], mode: "INSERT" },
   s: { keys: ["Delete"], mode: "INSERT" },
@@ -107,11 +109,20 @@ function stopHold() {
   hold = null;
 }
 
-// `repeat` is a zero-arg function that performs one repetition.
-function startHold(code, repeat) {
+function startHold(code, cmd, firstRun) {
   stopHold();
-  const h = { code, delayTimer: null, repeatTimer: null };
+  const h = { code, delayTimer: null, repeatTimer: null, busy: true };
+  const finished = () => {
+    h.busy = false;
+  };
+  firstRun.then(finished, finished);
+  const repeat = () => {
+    if (hold !== h || h.busy) return;
+    h.busy = true;
+    runCommand(cmd, 1).then(finished, finished);
+  };
   h.delayTimer = setTimeout(() => {
+    repeat();
     h.repeatTimer = setInterval(repeat, REPEAT_RATE);
   }, REPEAT_DELAY);
   hold = h;
@@ -314,8 +325,8 @@ function handleKeydown(event) {
     if (modsDown(event, cmd.tolerates)) {
       pending = { run: () => runCommand(cmd, n) };
     } else {
-      runCommand(cmd, n);
-      if (cmd.counted) startHold(event.code, () => runCommand(cmd, 1));
+      const firstRun = runCommand(cmd, n);
+      if (cmd.counted) startHold(event.code, cmd, firstRun);
     }
   }
   updateCursorOverlay(VimMode.getMode());

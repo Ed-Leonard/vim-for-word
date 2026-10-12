@@ -23,7 +23,7 @@
     "Copy": ["Meta", "c"],
     "Cut": ["Meta", "x"],
     "Paste": ["Meta", "v"],
-    "DownParagraph": ["Ctrl", "Down"],
-    "UpParagraph": ["Ctrl", "Up"]
+    "DownParagraph": ["Alt", "Down"],
+    "UpParagraph": ["Alt", "Up"]
   }
 }

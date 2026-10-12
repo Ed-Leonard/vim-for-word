@@ -23,21 +23,28 @@ Then load the extension:
   `npx web-ext sign --source-dir dist/firefox --channel=unlisted` (free AMO API keys), or use
   Developer Edition / ESR with `xpinstall.signatures.required=false`.
 - **Chrome / Chromium / Brave / Edge**: `chrome://extensions` -> Developer mode -> Load unpacked
-  -> `dist/chrome`, copy the extension ID, then `./install.sh --chrome-id <ID>`.
+  -> `dist/chrome`, then `./install.sh --chrome-id <ID>`. The installer saves the ID, so future
+  `./install.sh` runs reuse it automatically.
 
 Uninstall: `./uninstall.sh` (add `--purge-udev` to remove the udev rule too).
 
+After updating, run `./install.sh --no-udev` to refresh the installed native host
+and extension build, then reload the extension and the Word tab. The host runs
+from the installed copy, not directly from this repository.
+
 ## Usage
 
+| Keys                         | Action                                                               |
+| ---------------------------- | -------------------------------------------------------------------- |
+| `h j k l`, `w b`, `G`        | move (counts like `5j`)                                              |
+| `x u Ctrl+r`                 | delete char, undo, redo                                              |
+| `i a A I o O s`              | enter INSERT                                                         |
+| `v`                          | VISUAL (motions extend the selection; `y d x c s`; `Esc`/`v` leaves) |
+| `y d c` + motion, or doubled | `yw`, `d3w`, `yy`, `dd`, `cc`, `dG`                                  |
 
-| Keys | Action |
-|---|---|
-| `h j k l`, `w b`, `G` | move (counts like `5j`) |
-| `x u Ctrl+r` | delete char, undo, redo |
-| `i a A I o O s` | enter INSERT |
-| `v` | VISUAL (motions extend the selection; `y d x c s`; `Esc`/`v` leaves) |
-| `y d c` + motion, or doubled | `yw`, `d3w`, `yy`, `dd`, `cc`, `dG` |
-
+Long commands are injected in batches of four shortcuts with a 30 ms pause
+between batches so Word can catch up rendering. Single-key commands have no
+added delay.
 
 ## Porting
 

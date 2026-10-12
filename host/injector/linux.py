@@ -29,7 +29,6 @@ class Injector:
 
     def _emit(self, code, value):
         self.ui.write(e.EV_KEY, code, value)
-        self.ui.syn()
 
     def tap(self, codes):
         down = []
@@ -37,6 +36,8 @@ class Injector:
             for c in codes:
                 self._emit(c, 1)
                 down.append(c)
+            self.ui.syn()
         finally:
             for c in reversed(down):
                 self._emit(c, 0)
+            self.ui.syn()

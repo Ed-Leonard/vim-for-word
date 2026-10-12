@@ -109,8 +109,16 @@ function getCharacterRectAtCursor() {
   return rect.width > 0 ? rect : null;
 }
 
+let cursorFramePending = false;
+let cursorMode = "NORMAL";
+
 function updateCursorOverlay(mode) {
+  cursorMode = mode;
+  if (cursorFramePending) return;
+  cursorFramePending = true;
   requestAnimationFrame(() => {
+    cursorFramePending = false;
+    const mode = cursorMode;
     const el = ensureCursorOverlay();
     if (mode !== "NORMAL" && mode !== "VISUAL") {
       el.style.display = "none";
@@ -119,6 +127,10 @@ function updateCursorOverlay(mode) {
 
     const charRect =
       getCharacterRectAtCursor() ?? getCaretRect(document.activeElement, 0); // fall back to thin rect at EOL
+    if (!charRect) {
+      el.style.display = "none";
+      return;
+    }
 
     el.style.display = "block";
     el.style.left = `${charRect.left}px`;
@@ -128,9 +140,8 @@ function updateCursorOverlay(mode) {
 
     el.classList.toggle("visual", mode === "VISUAL");
 
-    el.style.animation = "none";
-    void el.offsetWidth;
-    el.style.animation = "";
+    // Restart the blink without a synchronous layout read.
+    for (const animation of el.getAnimations()) animation.currentTime = 0;
   });
 }
 
