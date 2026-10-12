@@ -25,7 +25,9 @@ function connect() {
 
   p.onDisconnect.addListener(() => {
     const err =
-      p.error?.message ?? api.runtime.lastError?.message ?? "native host disconnected";
+      p.error?.message ??
+      api.runtime.lastError?.message ??
+      "native host disconnected";
     console.warn("[vimword]", err);
     if (port === p) port = null; // next command reconnects
     failAll(err);
@@ -38,7 +40,12 @@ api.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   const id = nextId++;
   waiting.set(id, sendResponse);
   try {
-    port.postMessage({ id, keys: msg.keys, count: msg.count, shift: msg.shift });
+    port.postMessage({
+      id,
+      keys: msg.keys,
+      count: msg.count,
+      shift: msg.shift,
+    });
   } catch (ex) {
     waiting.delete(id);
     sendResponse({ ok: false, error: String(ex) });

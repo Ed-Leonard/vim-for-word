@@ -23,7 +23,8 @@ Then load the extension:
   `npx web-ext sign --source-dir dist/firefox --channel=unlisted` (free AMO API keys), or use
   Developer Edition / ESR with `xpinstall.signatures.required=false`.
 - **Chrome / Chromium / Brave / Edge**: `chrome://extensions` -> Developer mode -> Load unpacked
-  -> `dist/chrome`, copy the extension ID, then `./install.sh --chrome-id <ID>`.
+  -> `dist/chrome`, then `./install.sh --chrome-id <ID>`. The installer saves the ID, so future
+  `./install.sh` runs reuse it automatically.
 
 Uninstall: `./uninstall.sh` (add `--purge-udev` to remove the udev rule too).
 

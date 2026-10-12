@@ -7,13 +7,13 @@ FF_ID="vimword@typo"   # must match gecko.id in extension/manifest.firefox.json
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/vimword"
 CHROME_ID=""
+CHROME_ID_FILE="$PREFIX/chrome-extension-id"
 SKIP_UDEV=0
 
 usage() {
   cat <<EOF
 Usage: ./install.sh [--chrome-id ID] [--no-udev]
-  --chrome-id ID  also register the host for Chrome/Chromium/Brave/Edge
-                  (load dist/chrome unpacked first and copy the ID from chrome://extensions)
+  --chrome-id ID  register the host for a Chrome extension with this ID and save it
   --no-udev       skip the sudo step (you must grant access to /dev/uinput yourself)
 EOF
 }
@@ -49,6 +49,11 @@ fi
 # 2. Host files + python environment (user-level, no system pip).
 echo "==> Installing host to $PREFIX"
 mkdir -p "$PREFIX"
+if [ -z "$CHROME_ID" ] && [ -f "$CHROME_ID_FILE" ]; then
+  CHROME_ID="$(<"$CHROME_ID_FILE")"
+elif [ -n "$CHROME_ID" ]; then
+  printf '%s\n' "$CHROME_ID" > "$CHROME_ID_FILE"
+fi
 rm -rf "$PREFIX/injector"
 cp -r "$REPO/host/." "$PREFIX/"
 if [ ! -x "$PREFIX/venv/bin/python" ]; then
@@ -102,5 +107,5 @@ Done. Next:
   Firefox: about:debugging -> This Firefox -> Load Temporary Add-on -> $REPO/dist/firefox/manifest.json
            (permanent install needs a signed build, see README)
   Chrome:  chrome://extensions -> Developer mode -> Load unpacked -> $REPO/dist/chrome
-           then: ./install.sh --chrome-id <the ID shown there>
+           then: ./install.sh --chrome-id <the ID shown there> (saved for future installs)
 EOF
