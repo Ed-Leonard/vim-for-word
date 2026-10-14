@@ -7,6 +7,10 @@ function addStyles() {
       caret-color: transparent !important;
     }
 
+    html.vim-normal-mode .caretForCanvas {
+      visibility: hidden !important;
+    }
+
     #vim-block-cursor {
       position: fixed;
       display: none;

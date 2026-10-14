@@ -15,6 +15,8 @@ import sys
 
 if sys.platform.startswith("linux"):
     from .linux import Injector
+elif sys.platform == "win32":
+    from .windows import Injector
 else:
     raise NotImplementedError(
         f"no key injector backend for platform {sys.platform!r}; see injector/__init__.py"
