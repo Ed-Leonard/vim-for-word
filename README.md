@@ -48,11 +48,6 @@ added delay.
 
 ## Porting
 
-- **Chrome** is already supported (same sources, separate manifest, `globalThis.browser ?? chrome`). (not tested)
-- **Windows**: implement `injector/windows.py` with `SendInput` (same `resolve`/`tap` interface);
-  register the host under `HKCU\Software\Mozilla\NativeMessagingHosts\com.typo.vimword` (and the
-  Chrome equivalent) pointing at the manifest JSON, with `path` set to a `.bat`/`.exe`; add an
-  `install.ps1`.
 - **macOS**: a `CGEvent` backend; `keymap.json` already has a `darwin` section (Alt/Meta shortcuts).
 
 ## TODO
@@ -61,6 +56,8 @@ added delay.
 - Status line is very simple and boring
 - numbered motions are limited to 100 to prevent blowing up word
 - cursor is a little laggy and sometimes inaccurate for bullet point lists in visual mode for whatever reason
+- cursor is also inaccurate on windows/brave unsure what causes it but is off for table values and large text as well
+- Very little testing on windows its a bit jank
 - Lots of missing bindings still to implement
 
 ## Limitations
@@ -68,6 +65,6 @@ added delay.
 - All keys map to a word shortcut since creating exact motions via selection modification is impossible for word due to JS state bs
 - Word has lots of quirks. E.g. o maps to 'end' + 'enter' but in the middle of a paragraph word treats 'enter' as split paragraph rather than new line
 - Lots of command and motions are slightly different to vim behavior because of these quirks
-- Not tested on light mode, or chromium browsers, and no windows or mac support yet.
+- Not tested on light mode, and no mac support yet.
 - Only works in browser due to it being an extension
 - Some commands that involve shift or ctrl modifiers etc. only trigger once the modifier is lifted, since the modifier would be injected into the synthetic event otherwise. E.g. "shift+G" triggers "Ctrl+End" but would actually trigger "Ctrl+Shift+G+End" which would highlight the whole document.
