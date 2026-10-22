@@ -86,14 +86,16 @@ function getCaretRect(node, offset, biasDownstream = true) {
   return rects[0] || range.getBoundingClientRect() || null;
 }
 
-function getCharacterRectAtCursor() {
+function getCharacterRectAtCursor(mode) {
   const sel = window.getSelection();
   if (!sel.focusNode) return null;
 
   let node = sel.focusNode,
     offset = sel.focusOffset;
 
-  // If we're a text node but at its end, hop to the next text node in doc order
+  if (mode === "VISUAL" && offset > 0) offset--;
+
+  // If we're at a text node's end, hop to the next text node in document order.
   if (node.nodeType === Node.TEXT_NODE && offset >= node.textContent.length) {
     const walker = document.createTreeWalker(
       document.body,
@@ -101,7 +103,7 @@ function getCharacterRectAtCursor() {
     );
     walker.currentNode = node;
     const next = walker.nextNode();
-    if (!next || next.textContent.length === 0) return null; // true EOL/EOF
+    if (!next || next.textContent.length === 0) return null;
     node = next;
     offset = 0;
   }
@@ -132,7 +134,8 @@ function updateCursorOverlay(mode) {
     }
 
     const charRect =
-      getCharacterRectAtCursor() ?? getCaretRect(document.activeElement, 0); // fall back to thin rect at EOL
+      getCharacterRectAtCursor(mode) ??
+      getCaretRect(document.activeElement, 0); // fall back to thin rect at EOL
     if (!charRect) {
       el.style.display = "none";
       return;

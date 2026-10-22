@@ -62,8 +62,6 @@ const LINE_NUMBER_CSS = `
   }
 `;
 
-// ---------- DOM lookup ----------
-
 function getRoot() {
   if (!rootEl || !rootEl.isConnected) rootEl = document.getElementById(ROOT_ID);
   return rootEl;
@@ -110,8 +108,6 @@ function getViewRect(root) {
   };
   return view.bottom > view.top ? view : null;
 }
-
-// ---------- Line detection ----------
 
 // Collect *visual* lines (what j/k step over) whose rects overlap `view`
 // (the vertical window to measure; may be taller than the screen).
@@ -203,8 +199,6 @@ function cursorLineIndex(lines, y) {
   }
   return bestDist <= 10 ? best : -1;
 }
-
-// ---------- Rendering ----------
 
 // Max distance (px) between caret and viewport we are willing to measure. Lines in
 // between are measured so numbers stay exact after scrolling away from the caret.
@@ -383,7 +377,6 @@ function followCaretToAnchor() {
   moveCaretToPoint(root, desiredX, (line.top + line.bottom) / 2, !sel.isCollapsed);
 }
 
-// ---------- Wiring ----------
 
 function watchLineNumbers() {
   let queued = false;
@@ -465,27 +458,4 @@ function watchLineNumbers() {
     mo.disconnect();
     gutterEl?.remove();
   };
-}
-
-// ---------- Debugging the phantom "extra line" ----------
-// Run debugLineNumbers() from the console. It outlines every detected line in
-// red and logs the element each one came from. Look at the extra line at the
-// bottom of a page: its logged element (class/id/ancestors) is what to exclude
-// via EXCLUDE_SELECTOR.
-function debugLineNumbers() {
-  const root = getRoot();
-  const view = root && getViewRect(root);
-  if (!view) return console.warn("no root/view");
-  const lines = collectVisualLines(root, view);
-  document.querySelectorAll(".vim-debug-box").forEach((n) => n.remove());
-  lines.forEach((l, i) => {
-    const b = document.createElement("div");
-    b.className = "vim-debug-box";
-    b.style.cssText =
-      `position:fixed;left:${l.left}px;top:${l.top}px;width:300px;` +
-      `height:${l.bottom - l.top}px;outline:1px solid red;` +
-      `pointer-events:none;z-index:999997`;
-    document.documentElement.appendChild(b);
-    console.log(i, l.src);
-  });
 }

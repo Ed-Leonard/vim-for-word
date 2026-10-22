@@ -44,8 +44,6 @@
         sel.toString().length > 0
       ) {
         VimMode.setMode("VISUAL");
-      } else {
-        VimMode.setMode("NORMAL");
       }
     });
 
